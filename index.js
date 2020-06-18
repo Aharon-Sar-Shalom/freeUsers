@@ -16,20 +16,38 @@ let collection = null;
   collection = db.collection('users');
 })();
 
-//freeUsers mission:
+/////////freeUsers mission:
 
-//post new user
-app.post('/users', async (req, res) => {
-  const {firstName, lastName, age, password} = req.body;
+////manager options:
+// DELETE all users(manager option)
+app.delete('/users/reset', async (req, res) => {
   try {
-    await collection.insertOne({firstName, lastName, age, password});
+    await collection.deleteMany({});
     res.status(200).json('ok');
   } catch (e) {
     res.send(e);
   }
 });
-
-//get all users(for manager)
+// DELETE one user(manager option)
+app.delete('/users/:id', async (req, res) => {
+  try {
+    await collection.deleteOne({fullName: req.params.id});
+    res.status(200).json('ok');
+  } catch (e) {
+    res.send(e);
+  }
+});
+//POST new user(manager option)
+app.post('/users', async (req, res) => {
+  const {firstName, lastName, fullName, age, password} = req.body;
+  try {
+    await collection.insertOne({firstName, lastName, fullName, age, password});
+    res.status(200).json('ok');
+  } catch (e) {
+    res.send(e);
+  }
+});
+//GET all users(manager option)
 app.get('/users', async (req, res) => {
   try {
     res.send(await collection.find({}).toArray())
@@ -37,11 +55,20 @@ app.get('/users', async (req, res) => {
     res.send(e);
   } 
 });
-
-// //Aharon-GET himself
-app.get('/users/Aharon', async (req, res) => {
+// //GET spceific user(manager option)
+app.get('/users/:id', async (req, res) => {
   try {
-    res.send(await collection.findOne({ firstName: 'Aharon'}))
+    res.send(await collection.findOne({ _id: +req.params.id}))
+  } catch (e) {
+    res.send(e);
+  } 
+});
+
+////users options:
+// //GET spceific user
+app.get('/users/:id', async (req, res) => {
+  try {
+    res.send(await collection.findOne({ _id: +req.params.id}))
   } catch (e) {
     res.send(e);
   } 
